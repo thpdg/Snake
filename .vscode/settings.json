@@ -7,4 +7,5 @@
     "python.analysis.typeshedPaths": [
         "./typings/",
     ],
+    "cmake.configureOnOpen": false,
 }

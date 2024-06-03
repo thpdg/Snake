@@ -122,14 +122,22 @@ def checkCollision(debug=True):
     global snakeData
     global snakeHeading
     
+    # Check hitting wall
     print("Checking " + str(snakeData[-1]) + " for wall")
     if snakeData[-1][0]>31 or snakeData[-1][1]>31 or snakeData[-1][0]<1 or snakeData[-1][1]<1:
         print("Hit the wall at " + str(snakeData[-1]))
         return "WALL"
     
+    # Check eating food
     if snakeData[-1] == foodlocation:
         print("Hit the food at " + foodlocation)
         return "FOOD"
+    
+    # Check hitting self
+    # for segment in snake
+    #  if head is in segment
+    #	return "SELF"
+        
     
     # If hit self
     # return "SELF"
@@ -157,8 +165,8 @@ if __name__ == "__main__":
     # Game variables
     #foodlocation = [16,16]
     foodlocation = newFoodLocation()
-    snakeData = [[15,5],[19,5],[19,19],[15,19]] #,[12,19],[12,13]]
-    snakeHeading = [-1,0]
+    snakeData = [[15,5],[19,5],[19,10],[15,10],[15,20],[19,20],[19,19]] #,[12,19],[12,13]]
+    snakeHeading = [0,-1]
 
     if debug:
         print("=== Snake RP2040 ===")
