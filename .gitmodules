@@ -5,3 +5,7 @@
 	path = BME68x_SensorAPI
 	url = https://github.com/boschsensortec/BME68x_SensorAPI.git
 	branch = master
+[submodule "i75Starter"]
+	path = i75Starter
+	url = https://github.com/thpdg/i75Starter
+	branch = master
