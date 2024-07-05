@@ -5,9 +5,12 @@ import math
 
 if sys.implementation.name == "micropython":
     from pimoroni_i2c import PimoroniI2C
-    from pimoroni import HEADER_I2C_PINS  # or PICO_EXPLORER_I2C_PINS or HEADER_I2C_PINS
+    from pimoroni import HEADER_I2C_PINS
+    # from breakout_encoder import BreakoutEncoder
     from breakout_encoder_wheel import BreakoutEncoderWheel, UP, DOWN, LEFT, RIGHT, CENTRE, NUM_LEDS
     from interstate75 import Interstate75, DISPLAY_INTERSTATE75_32X32
+    i2c = PimoroniI2C(**HEADER_I2C_PINS)
+    wheel = BreakoutEncoderWheel(i2c)
 
 def cleari75(debugmode=True):
     if debugmode:
@@ -42,6 +45,7 @@ def initializei75(debugmode=True)->bool:
     if not sys.implementation.name == "micropython":
         print("i75 Board Required")
         return False
+    
     i75 = Interstate75(display=DISPLAY_INTERSTATE75_32X32)
     graphics = i75.display
     width = i75.width
@@ -156,6 +160,29 @@ def moveSnake():
     else:
         snakeData[0] = newA
     print(snakeData[0])
+
+def checkControls():
+    global wheel
+    global snakeHeading
+    if wheel.pressed(UP):
+        print("UP")
+        snakeData.append(snakeData[-1])
+        snakeHeading = [0,-1]
+    if wheel.pressed(LEFT):
+        print("LEFT")
+        snakeData.append(snakeData[-1])
+        snakeHeading = [-1,0]
+    if wheel.pressed(RIGHT):
+        print("RIGHT")
+        snakeData.append(snakeData[-1])
+        snakeHeading = [1,0]
+    if wheel.pressed(DOWN):
+        print("DOWN")
+        snakeData.append(snakeData[-1])
+        snakeHeading = [0,1]
+
+    pass
+
     
 if __name__ == "__main__":
 #     debug = sys.argv.__contains__("debug")
@@ -165,7 +192,8 @@ if __name__ == "__main__":
     # Game variables
     #foodlocation = [16,16]
     foodlocation = newFoodLocation()
-    snakeData = [[15,5],[19,5],[19,10],[15,10],[15,20],[19,20],[19,19]] #,[12,19],[12,13]]
+    snakeData = [[15,5],[18,5],[18,10],[15,10],[15,20],[19,20],[19,19]] #,[12,19],[12,13]]
+    #snakeData = [[16,16],[16,16]]
     snakeHeading = [0,-1]
 
     if debug:
@@ -189,7 +217,7 @@ if __name__ == "__main__":
         result = checkCollision()
         if result == "WALL":
             break
-            
+        checkControls()
         print(snakeData)
         time.sleep(0.2)
 
