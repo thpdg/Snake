@@ -95,6 +95,12 @@ def subListItems(a,b):
     return [ad,bd]
 
 def move_a_towards_b(a, b, step_size=1.0):
+    global growSnake
+    
+    if growSnake > 0:
+        growSnake = growSnake - 1
+        return a
+
     a = a[:]  # Create a copy of a to avoid modifying the original list
 #     while a != b:
     # Step 1: Calculate the difference vector
@@ -134,7 +140,7 @@ def checkCollision(debug=True):
     
     # Check eating food
     if snakeData[-1] == foodlocation:
-        print("Hit the food at " + foodlocation)
+        print("Hit the food at " + str(foodlocation))
         return "FOOD"
     
     # Check hitting self
@@ -183,6 +189,23 @@ def checkControls():
 
     pass
 
+def waitRestart():
+    global wheel
+    while True:
+        if wheel.pressed(CENTRE):
+            return True
+    time.sleep(0.2)
+    
+def initializeSnake():
+    global foodlocation
+    global snakeData
+    global snakeHeading
+    global growSnake
+    
+    growSnake = 0
+    foodlocation = newFoodLocation()
+    snakeData = [[15,5],[18,5],[18,10],[15,10],[15,20],[19,20],[19,19]] #,[12,19],[12,13]]
+    snakeHeading = [0,-1]
     
 if __name__ == "__main__":
 #     debug = sys.argv.__contains__("debug")
@@ -191,10 +214,11 @@ if __name__ == "__main__":
 
     # Game variables
     #foodlocation = [16,16]
-    foodlocation = newFoodLocation()
-    snakeData = [[15,5],[18,5],[18,10],[15,10],[15,20],[19,20],[19,19]] #,[12,19],[12,13]]
-    #snakeData = [[16,16],[16,16]]
-    snakeHeading = [0,-1]
+#     foodlocation = newFoodLocation()
+#     snakeData = [[15,5],[18,5],[18,10],[15,10],[15,20],[19,20],[19,19]] #,[12,19],[12,13]]
+#     #snakeData = [[16,16],[16,16]]
+#     snakeHeading = [0,-1]
+    initializeSnake()
 
     if debug:
         print("=== Snake RP2040 ===")
@@ -211,13 +235,18 @@ if __name__ == "__main__":
     while True:
 #         cleari75(False)
         drawPlayfield(debug)
+        checkControls()
         drawSnake(debug)        
         i75.update()
         moveSnake()
         result = checkCollision()
         if result == "WALL":
-            break
-        checkControls()
+            waitRestart()
+            initializeSnake()
+        if result == "FOOD":
+            growSnake = 5
+            foodlocation = newFoodLocation()
+
         print(snakeData)
         time.sleep(0.2)
 
