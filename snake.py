@@ -23,11 +23,16 @@ def cleari75(debugmode=True):
 def drawLine(x,y,dir,r,g,b,debug=False):
     return True
 
-def newFoodLocation():
-    x = random.randint(1,30)
-    y = random.randint(1,30)
-    print(str(x) + ":" + str(y))
-    return [x,y]
+def newFoodLocation(debug=False):
+    global snakeData
+    foodLoc = [0,0]
+    foodLoc[0] = snakeData[-2][0]
+    foodLoc[1] = snakeData[-2][1]
+    while is_point_on_line_segments(snakeData, foodLoc):
+        foodLoc[0] = random.randint(1,30)
+        foodLoc[1] = random.randint(1,30)
+    if debug: print("New food location: " + str(foodLoc[0]) + ":" + str(foodLoc[1]))
+    return foodLoc
 
 def initializei75(debugmode=True)->bool:
     global width
@@ -94,7 +99,7 @@ def subListItems(a,b):
     bd = a[1]-b[1]
     return [ad,bd]
 
-def move_a_towards_b(a, b, step_size=1.0):
+def move_a_towards_b(a, b, step_size=1.0, debug=False):
     global growSnake
     
     if growSnake > 0:
@@ -110,10 +115,12 @@ def move_a_towards_b(a, b, step_size=1.0):
     magnitude = math.sqrt(sum([component ** 2 for component in difference_vector]))
     
     if magnitude == 0:
-        print("Equal")
+        if debug:
+            print("Equal")
         return -1
     else:
-        print("Not equal")
+        if debug:
+            print("Not equal")
     
     # Step 3: Normalize the difference vector to get the direction vector
     direction_vector = [component / magnitude for component in difference_vector]
@@ -124,16 +131,35 @@ def move_a_towards_b(a, b, step_size=1.0):
     # Round the coordinates to avoid floating-point arithmetic issues
     a = [round(coord) for coord in a]
     
-    print(f'Moving to: {a}')  # Print the current position of a
+    if debug:
+        print(f'Moving to: {a}')  # Print the current position of a
     
     return a
+
+def is_point_on_line_segments(vertexes, point):
+    """Checks if the given point lies on any of the horizontal or vertical line segments defined by the array of vertexes"""
+    n = len(vertexes)
+    
+    for i in range(n - 2):
+        p1 = vertexes[i]
+        p2 = vertexes[i + 1]
+        
+        if p1[0] == p2[0]:  # Vertical segment
+            if point[0] == p1[0] and min(p1[1], p2[1]) <= point[1] <= max(p1[1], p2[1]):
+                return True
+        elif p1[1] == p2[1]:  # Horizontal segment
+            if point[1] == p1[1] and min(p1[0], p2[0]) <= point[0] <= max(p1[0], p2[0]):
+                return True
+            
+    return False
 
 def checkCollision(debug=True):
     global snakeData
     global snakeHeading
     
     # Check hitting wall
-    print("Checking " + str(snakeData[-1]) + " for wall")
+    if debug:
+        print("Checking " + str(snakeData[-1]) + " for wall")
     if snakeData[-1][0]>31 or snakeData[-1][1]>31 or snakeData[-1][0]<1 or snakeData[-1][1]<1:
         print("Hit the wall at " + str(snakeData[-1]))
         return "WALL"
@@ -144,46 +170,43 @@ def checkCollision(debug=True):
         return "FOOD"
     
     # Check hitting self
-    # for segment in snake
-    #  if head is in segment
-    #	return "SELF"
-        
-    
-    # If hit self
-    # return "SELF"
+    if is_point_on_line_segments(snakeData, snakeData[-1]):
+        print("Hit Self " + str(snakeData[-1]))
+        return "SELF"
     
     return 0
 
-def moveSnake():
+def moveSnake(debug=False):
     global snakeHeading
     global snakeData
     
     snakeData[-1] = [snakeData[-1][0] + snakeHeading[0], snakeData[-1][1] + snakeHeading[1]]
     
-    newA = move_a_towards_b(snakeData[0],snakeData[1])
+    newA = move_a_towards_b(snakeData[0],snakeData[1], 1.0, debug)
     if newA == -1:
         snakeData.pop(0)
     else:
         snakeData[0] = newA
-    print(snakeData[0])
+    if debug:
+        print(snakeData[0])
 
-def checkControls():
+def checkControls(debug=False):
     global wheel
     global snakeHeading
     if wheel.pressed(UP):
-        print("UP")
+        if debug: print("UP")
         snakeData.append(snakeData[-1])
         snakeHeading = [0,-1]
     if wheel.pressed(LEFT):
-        print("LEFT")
+        if debug: print("LEFT")
         snakeData.append(snakeData[-1])
         snakeHeading = [-1,0]
     if wheel.pressed(RIGHT):
-        print("RIGHT")
+        if debug: print("RIGHT")
         snakeData.append(snakeData[-1])
         snakeHeading = [1,0]
     if wheel.pressed(DOWN):
-        print("DOWN")
+        if debug: print("DOWN")
         snakeData.append(snakeData[-1])
         snakeHeading = [0,1]
 
@@ -203,14 +226,17 @@ def initializeSnake():
     global growSnake
     
     growSnake = 0
-    foodlocation = newFoodLocation()
     snakeData = [[15,5],[18,5],[18,10],[15,10],[15,20],[19,20],[19,19]] #,[12,19],[12,13]]
     snakeHeading = [0,-1]
+    foodlocation = newFoodLocation()
+
+def displaySelfFail():
+    pass
     
 if __name__ == "__main__":
 #     debug = sys.argv.__contains__("debug")
 #     print(sys.argv)
-    debug=True
+    debug=False
 
     # Game variables
     #foodlocation = [16,16]
@@ -230,7 +256,7 @@ if __name__ == "__main__":
     cleari75(debug)
     
     print("Begining Game Loop")
-    print(snakeData)
+    print("Initial Snake Data: " + str(snakeData))
     
     while True:
 #         cleari75(False)
@@ -238,16 +264,21 @@ if __name__ == "__main__":
         checkControls()
         drawSnake(debug)        
         i75.update()
-        moveSnake()
-        result = checkCollision()
+        moveSnake(debug)
+        result = checkCollision(debug)
         if result == "WALL":
             waitRestart()
             initializeSnake()
         if result == "FOOD":
             growSnake = 5
             foodlocation = newFoodLocation()
+        if result == "SELF":
+            displaySelfFail()
+            waitRestart()
+            initializeSnake()
 
-        print(snakeData)
+        if debug:
+            print(snakeData)
         time.sleep(0.2)
 
     print("DONE")
