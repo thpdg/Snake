@@ -224,15 +224,28 @@ def initializeSnake():
     snakeData = [[15,5],[18,5],[18,10],[15,10],[15,20],[19,20],[19,19]] #,[12,19],[12,13]]
     snakeHeading = [0,-1]
     foodlocation = newFoodLocation()
+    
+def displaySelfFail() -> None:
+    """
+    Displays the "fail" state when the snake hits itself.
 
-def displaySelfFail():
+    Returns:
+        None
+    """
+    for _ in range(3):  # Blink 3 times
+        drawPlayfield()
+        graphics.set_pen(LT_RED)
+        graphics.rectangle(1, 1, 30, 30)
+        drawSnake()
+        i75.update()
+        time.sleep(0.3)
+        cleari75(False)
+        time.sleep(0.3)
     drawPlayfield()
     graphics.set_pen(LT_RED)
-    graphics.rectangle(1,1,30,30)
+    graphics.rectangle(1, 1, 30, 30)
     drawSnake()
-    #blink?
     i75.update()
-    pass
     
 if __name__ == "__main__":
 #     debug = sys.argv.__contains__("debug")
