@@ -6,7 +6,6 @@ import math
 if sys.implementation.name == "micropython":
     from pimoroni_i2c import PimoroniI2C
     from pimoroni import HEADER_I2C_PINS
-    # from breakout_encoder import BreakoutEncoder
     from breakout_encoder_wheel import BreakoutEncoderWheel, UP, DOWN, LEFT, RIGHT, CENTRE, NUM_LEDS
     from interstate75 import Interstate75, DISPLAY_INTERSTATE75_32X32
     i2c = PimoroniI2C(**HEADER_I2C_PINS)
