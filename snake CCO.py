@@ -131,7 +131,7 @@ def sub_list_items(a: list[int], b: list[int]) -> list[int]:
     """
     return [a[0] - b[0], a[1] - b[1]]
 
-def move_a_towards_b(a: list[int], b: list[int], step_size: float = 1.0, debug: bool = False) -> list[int] or int:
+def move_a_towards_b(a, b: list[int], step_size: float = 1.0, debug: bool = False) -> list[int]|int:
     """
     Moves point a towards point b by a given step size.
 
@@ -191,7 +191,7 @@ def is_point_on_line_segments(vertexes: list[list[int]], point: list[int]) -> bo
             
     return False
 
-def check_collision(debug: bool = True) -> str or int:
+def check_collision(debug: bool = True) -> str|int:
     """
     Checks for collisions of the snake with the wall, food, or itself.
 
@@ -302,6 +302,15 @@ def display_self_fail() -> None:
     Returns:
         None
     """
+    for _ in range(3):  # Blink 3 times
+        draw_playfield()
+        graphics.set_pen(LT_RED)
+        graphics.rectangle(1, 1, 30, 30)
+        draw_snake()
+        i75.update()
+        time.sleep(0.3)
+        cleari75(False)
+        time.sleep(0.3)
     draw_playfield()
     graphics.set_pen(LT_RED)
     graphics.rectangle(1, 1, 30, 30)
