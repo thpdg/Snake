@@ -11,7 +11,16 @@ if sys.implementation.name == "micropython":
     i2c = PimoroniI2C(**HEADER_I2C_PINS)
     wheel = BreakoutEncoderWheel(i2c)
 
-def cleari75(debug_mode=True):
+def cleari75(debug_mode: bool = True) -> bool:
+    """
+    Clears the Interstate75 display board.
+
+    Args:
+        debug_mode (bool): If True, prints debug information.
+
+    Returns:
+        bool: Always returns True.
+    """
     if debug_mode:
         print("Clearing Board...")
     graphics.set_pen(graphics.create_pen(0, 0, 0))
@@ -19,7 +28,16 @@ def cleari75(debug_mode=True):
     i75.update()
     return True
 
-def new_food_location(debug=False):
+def new_food_location(debug: bool = False) -> list[int]:
+    """
+    Generates a new location for the food that is not on the snake.
+
+    Args:
+        debug (bool): If True, prints debug information.
+
+    Returns:
+        list[int]: Coordinates of the new food location.
+    """
     global snake_data
     food_loc = [snake_data[-2][0], snake_data[-2][1]]
     while is_point_on_line_segments(snake_data, food_loc):
@@ -28,7 +46,16 @@ def new_food_location(debug=False):
         print(f"New food location: {food_loc[0]}:{food_loc[1]}")
     return food_loc
 
-def initialize_i75(debug_mode=True) -> bool:
+def initialize_i75(debug_mode: bool = True) -> bool:
+    """
+    Initializes the Interstate75 display board.
+
+    Args:
+        debug_mode (bool): If True, prints debug information.
+
+    Returns:
+        bool: True if the initialization was successful, False otherwise.
+    """
     global width, height, graphics, i75, BLUE, RED, LT_RED, BLACK, YELLOW
 
     print("Initializing i75...")
@@ -50,7 +77,16 @@ def initialize_i75(debug_mode=True) -> bool:
     print("Initialized")
     return True
 
-def draw_playfield(debug_mode=True) -> bool:
+def draw_playfield(debug_mode: bool = True) -> bool:
+    """
+    Draws the playfield, including the border and the food.
+
+    Args:
+        debug_mode (bool): If True, prints debug information.
+
+    Returns:
+        bool: Always returns True.
+    """
     graphics.set_pen(BLUE)
     graphics.rectangle(0, 0, 32, 32)
 
@@ -61,7 +97,16 @@ def draw_playfield(debug_mode=True) -> bool:
     graphics.pixel(food_location[0], food_location[1])
     return True
 
-def draw_snake(debug_mode=True):
+def draw_snake(debug_mode: bool = True) -> bool:
+    """
+    Draws the snake on the playfield.
+
+    Args:
+        debug_mode (bool): If True, prints debug information.
+
+    Returns:
+        bool: True if the snake is drawn, False if snake_data is None.
+    """
     global snake_data
     if snake_data is None:
         return False
@@ -73,10 +118,32 @@ def draw_snake(debug_mode=True):
         last_data = data
     return True
 
-def sub_list_items(a, b):
+def sub_list_items(a: list[int], b: list[int]) -> list[int]:
+    """
+    Subtracts corresponding elements of two lists.
+
+    Args:
+        a (list[int]): The first list.
+        b (list[int]): The second list.
+
+    Returns:
+        list[int]: The result of element-wise subtraction.
+    """
     return [a[0] - b[0], a[1] - b[1]]
 
-def move_a_towards_b(a, b, step_size=1.0, debug=False):
+def move_a_towards_b(a: list[int], b: list[int], step_size: float = 1.0, debug: bool = False) -> list[int] or int:
+    """
+    Moves point a towards point b by a given step size.
+
+    Args:
+        a (list[int]): The starting point.
+        b (list[int]): The destination point.
+        step_size (float): The step size.
+        debug (bool): If True, prints debug information.
+
+    Returns:
+        list[int] or int: The new coordinates of point a, or -1 if a equals b.
+    """
     global grow_snake
     
     if grow_snake > 0:
@@ -101,7 +168,17 @@ def move_a_towards_b(a, b, step_size=1.0, debug=False):
     
     return a
 
-def is_point_on_line_segments(vertexes, point):
+def is_point_on_line_segments(vertexes: list[list[int]], point: list[int]) -> bool:
+    """
+    Checks if the given point lies on any of the horizontal or vertical line segments defined by the array of vertexes.
+
+    Args:
+        vertexes (list[list[int]]): The array of vertexes defining line segments.
+        point (list[int]): The point to check.
+
+    Returns:
+        bool: True if the point lies on any line segment, False otherwise.
+    """
     n = len(vertexes)
     
     for i in range(n - 2):
@@ -114,7 +191,16 @@ def is_point_on_line_segments(vertexes, point):
             
     return False
 
-def check_collision(debug=True):
+def check_collision(debug: bool = True) -> str or int:
+    """
+    Checks for collisions of the snake with the wall, food, or itself.
+
+    Args:
+        debug (bool): If True, prints debug information.
+
+    Returns:
+        str or int: "WALL" if the snake hits the wall, "FOOD" if the snake eats the food, "SELF" if the snake hits itself, 0 otherwise.
+    """
     global snake_data, snake_heading
     
     if debug:
@@ -133,7 +219,16 @@ def check_collision(debug=True):
     
     return 0
 
-def move_snake(debug=False):
+def move_snake(debug: bool = False) -> None:
+    """
+    Moves the snake in the direction of the snake_heading.
+
+    Args:
+        debug (bool): If True, prints debug information.
+
+    Returns:
+        None
+    """
     global snake_heading, snake_data
     
     snake_data[-1] = [snake_data[-1][0] + snake_heading[0], snake_data[-1][1] + snake_heading[1]]
@@ -145,7 +240,16 @@ def move_snake(debug=False):
     if debug:
         print(snake_data[0])
 
-def check_controls(debug=False):
+def check_controls(debug: bool = False) -> None:
+    """
+    Checks the controls and updates the snake's heading based on the input.
+
+    Args:
+        debug (bool): If True, prints debug information.
+
+    Returns:
+        None
+    """
     global wheel, snake_heading
     if wheel.pressed(UP):
         if debug: print("UP")
@@ -164,14 +268,26 @@ def check_controls(debug=False):
         snake_data.append(snake_data[-1])
         snake_heading = [0, 1]
 
-def wait_restart():
+def wait_restart() -> bool:
+    """
+    Waits for the center button to be pressed to restart the game.
+
+    Returns:
+        bool: Always returns True when the button is pressed.
+    """
     global wheel
     while True:
         if wheel.pressed(CENTRE):
             return True
         time.sleep(0.2)
-    
-def initialize_snake():
+
+def initialize_snake() -> None:
+    """
+    Initializes the snake's position, heading, and food location.
+
+    Returns:
+        None
+    """
     global food_location, snake_data, snake_heading, grow_snake
     
     grow_snake = 0
@@ -179,7 +295,13 @@ def initialize_snake():
     snake_heading = [0, -1]
     food_location = new_food_location()
 
-def display_self_fail():
+def display_self_fail() -> None:
+    """
+    Displays the "fail" state when the snake hits itself.
+
+    Returns:
+        None
+    """
     draw_playfield()
     graphics.set_pen(LT_RED)
     graphics.rectangle(1, 1, 30, 30)
