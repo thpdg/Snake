@@ -20,9 +20,6 @@ def cleari75(debugmode=True):
     i75.update()
     return True
 
-def drawLine(x,y,dir,r,g,b,debug=False):
-    return True
-
 def newFoodLocation(debug=False):
     global snakeData
     foodLoc = [0,0]
@@ -41,6 +38,7 @@ def initializei75(debugmode=True)->bool:
     global i75
     global BLUE
     global RED
+    global LT_RED
     global BLACK
     global YELLOW
     
@@ -59,6 +57,7 @@ def initializei75(debugmode=True)->bool:
     BLACK = graphics.create_pen(0, 0, 0)
     BLUE = graphics.create_pen(0, 0, 255)
     RED = graphics.create_pen(255, 0, 0)
+    LT_RED = graphics.create_pen(128, 0, 0)
     YELLOW = graphics.create_pen(255,255,0)
     
     print("  Initialized")
@@ -68,12 +67,9 @@ def initializei75(debugmode=True)->bool:
 def drawPlayfield(debugmode=True)->bool:
     # Draw border
     graphics.set_pen(BLUE)
-#     graphics.line(0, 0, width, 0)
-#     graphics.line(0, 0, 0, height)
-#     graphics.line(height, width, 0, width-1)
-#     graphics.line(height, width, height-1, 0)
-    
     graphics.rectangle(0,0,32,32)
+
+    # Draw playfield
     graphics.set_pen(BLACK)
     graphics.rectangle(1,1,30,30)
 
@@ -160,7 +156,7 @@ def checkCollision(debug=True):
     # Check hitting wall
     if debug:
         print("Checking " + str(snakeData[-1]) + " for wall")
-    if snakeData[-1][0]>31 or snakeData[-1][1]>31 or snakeData[-1][0]<1 or snakeData[-1][1]<1:
+    if snakeData[-1][0]>30 or snakeData[-1][1]>30 or snakeData[-1][0]<1 or snakeData[-1][1]<1:
         print("Hit the wall at " + str(snakeData[-1]))
         return "WALL"
     
@@ -231,6 +227,12 @@ def initializeSnake():
     foodlocation = newFoodLocation()
 
 def displaySelfFail():
+    drawPlayfield()
+    graphics.set_pen(LT_RED)
+    graphics.rectangle(1,1,30,30)
+    drawSnake()
+    #blink?
+    i75.update()
     pass
     
 if __name__ == "__main__":
@@ -266,16 +268,17 @@ if __name__ == "__main__":
         i75.update()
         moveSnake(debug)
         result = checkCollision(debug)
-        if result == "WALL":
+        if result == "WALL" or result == "SELF":
+            displaySelfFail()
             waitRestart()
             initializeSnake()
         if result == "FOOD":
             growSnake = 5
             foodlocation = newFoodLocation()
-        if result == "SELF":
-            displaySelfFail()
-            waitRestart()
-            initializeSnake()
+        # if result == "SELF":
+        #     displaySelfFail()
+        #     waitRestart()
+        #     initializeSnake()
 
         if debug:
             print(snakeData)
