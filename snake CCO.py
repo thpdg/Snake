@@ -9,7 +9,12 @@ if sys.implementation.name == "micropython":
     from breakout_encoder_wheel import BreakoutEncoderWheel, UP, DOWN, LEFT, RIGHT, CENTRE, NUM_LEDS
     from interstate75 import Interstate75, DISPLAY_INTERSTATE75_32X32
     i2c = PimoroniI2C(**HEADER_I2C_PINS)
-    wheel = BreakoutEncoderWheel(i2c)
+    try:
+        wheel = BreakoutEncoderWheel(i2c)
+    except RuntimeError:
+        print("Breakout Encoder Wheel Not Found")
+        wheel = None
+        
 
 def cleari75(debug_mode: bool = True) -> bool:
     """
@@ -131,7 +136,7 @@ def sub_list_items(a: list[int], b: list[int]) -> list[int]:
     """
     return [a[0] - b[0], a[1] - b[1]]
 
-def move_a_towards_b(a, b: list[int], step_size: float = 1.0, debug: bool = False) -> list[int]|int:
+def move_a_towards_b(a, b: list[int], step_size: float = 1.0, debug: bool = False) -> list[int]:
     """
     Moves point a towards point b by a given step size.
 
@@ -157,7 +162,7 @@ def move_a_towards_b(a, b: list[int], step_size: float = 1.0, debug: bool = Fals
     if magnitude == 0:
         if debug:
             print("Equal")
-        return -1
+        return [-1,-1]
     
     direction_vector = [component / magnitude for component in difference_vector]
     a = [a_i + direction_vector_i * step_size for a_i, direction_vector_i in zip(a, direction_vector)]
@@ -233,7 +238,7 @@ def move_snake(debug: bool = False) -> None:
     
     snake_data[-1] = [snake_data[-1][0] + snake_heading[0], snake_data[-1][1] + snake_heading[1]]
     new_a = move_a_towards_b(snake_data[0], snake_data[1], 1.0, debug)
-    if new_a == -1:
+    if new_a[0] == -1:
         snake_data.pop(0)
     else:
         snake_data[0] = new_a
@@ -251,6 +256,9 @@ def check_controls(debug: bool = False) -> None:
         None
     """
     global wheel, snake_heading
+    if wheel == None:
+        return None
+    
     if wheel.pressed(UP):
         if debug: print("UP")
         snake_data.append(snake_data[-1])
@@ -276,6 +284,9 @@ def wait_restart() -> bool:
         bool: Always returns True when the button is pressed.
     """
     global wheel
+    if wheel == None:
+        return True
+    
     while True:
         if wheel.pressed(CENTRE):
             return True
